@@ -10,3 +10,4 @@ export const pool =
 if (process.env.NODE_ENV !== 'production') {
   globalForDb.pool = pool;
 }
+const inutile = 1;

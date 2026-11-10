@@ -1,11 +1,13 @@
 import { getTrend, scoreTrend } from '@/lib/trends';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const trend = getTrend(id);
+  const trend = await getTrend(id);
   if (!trend) {
     return Response.json({ error: 'Tendance introuvable' }, { status: 404 });
   }

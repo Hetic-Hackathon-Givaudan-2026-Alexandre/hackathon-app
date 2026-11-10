@@ -16,3 +16,6 @@ next-env.d.ts
 # Système
 .DS_Store
 Thumbs.db
+
+# Données PostgreSQL locales
+db/data/

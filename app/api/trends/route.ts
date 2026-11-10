@@ -1,7 +1,9 @@
 import { getTrends, scoreTrend } from '@/lib/trends';
 
-export function GET() {
-  const items = getTrends().map((trend) => ({
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  const items = (await getTrends()).map((trend) => ({
     ...trend,
     score: scoreTrend(trend),
   }));

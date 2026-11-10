@@ -4,7 +4,7 @@
   "private": true,
   "description": "Détecteur de tendances — Givaudan AI Challenge 2026",
   "scripts": {
-    "dev": "next dev --hostname 0.0.0.0 --port 3000",
+    "dev": "next dev --webpack --hostname 0.0.0.0 --port 3000",
     "build": "next build",
     "start": "next start --port 3000",
     "lint": "eslint .",

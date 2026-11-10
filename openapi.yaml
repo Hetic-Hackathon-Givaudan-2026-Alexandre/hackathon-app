@@ -1,0 +1,169 @@
+openapi: 3.1.0
+info:
+  title: API du Détecteur de tendances
+  version: 0.1.0
+  description: >
+    Contrat de l'API du prototype (voir docs/adr/0004-contrat-api-openapi.md).
+    Les routes sont servies par Next.js depuis app/api/.
+# Prototype sans authentification (données publiques et agrégées)
+security: []
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/health:
+    get:
+      operationId: getHealth
+      summary: Vérifier que le service répond
+      responses:
+        '200':
+          description: Service disponible
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  db:
+                    type: string
+                    description: Version de PostgreSQL
+        '503':
+          description: Base de données injoignable
+  /api/trends:
+    get:
+      operationId: listTrends
+      summary: Lister les tendances avec leur score
+      responses:
+        '200':
+          description: Tendances détectées
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrendAvecScore'
+  /api/trends/{id}:
+    get:
+      operationId: getTrend
+      summary: Détail d'une tendance
+      parameters:
+        - $ref: '#/components/parameters/TrendId'
+      responses:
+        '200':
+          description: La tendance et son score
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrendAvecScore'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+  /api/trends/{id}/analyse:
+    post:
+      operationId: analyseTrend
+      summary: Explication IA « suivre / attendre » (voir ADR 0002)
+      description: >
+        Envoie uniquement des indicateurs agrégés au fournisseur d'IA,
+        puis enregistre la réponse dans la table analyses.
+      parameters:
+        - $ref: '#/components/parameters/TrendId'
+      responses:
+        '200':
+          description: Explication générée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analyse'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+        '503':
+          description: Fournisseur d'IA indisponible
+components:
+  parameters:
+    TrendId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        example: dubai-chocolate
+  responses:
+    Introuvable:
+      description: Tendance introuvable
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+  schemas:
+    Trend:
+      type: object
+      required:
+        [id, nom, categorie, description, pays, sources, mentions, simule]
+      properties:
+        id:
+          type: string
+        nom:
+          type: string
+        categorie:
+          type: string
+          enum: [food, fragrance, beauty]
+        description:
+          type: string
+        pays:
+          type: array
+          description: Codes pays ISO 3166-1 alpha-2
+          items:
+            type: string
+        sources:
+          type: array
+          items:
+            type: string
+            example: tiktok
+        mentions:
+          type: array
+          description: Volume de mentions par période, de la plus ancienne à la plus récente
+          items:
+            type: integer
+        simule:
+          type: boolean
+          description: true si la donnée est simulée
+    Score:
+      type: object
+      required: [total, croissance, convergence, diffusion, verdict]
+      properties:
+        total:
+          type: integer
+          minimum: 0
+          maximum: 100
+        croissance:
+          type: integer
+        convergence:
+          type: integer
+        diffusion:
+          type: integer
+        verdict:
+          type: string
+          enum: [tendance durable, à surveiller, buzz]
+    TrendAvecScore:
+      allOf:
+        - $ref: '#/components/schemas/Trend'
+        - type: object
+          required: [score]
+          properties:
+            score:
+              $ref: '#/components/schemas/Score'
+    Analyse:
+      type: object
+      required: [recommandation, explication, modele]
+      properties:
+        recommandation:
+          type: string
+          enum: [suivre, attendre, ignorer]
+        explication:
+          type: string
+        modele:
+          type: string
+          example: llama3.2:1b

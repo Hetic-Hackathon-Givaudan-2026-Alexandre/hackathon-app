@@ -1,0 +1,25 @@
+name: Tâche
+description: Travail technique sans effet visible pour l'utilisateur
+type: Task
+body:
+  - type: markdown
+    attributes:
+      value: Le titre est un verbe suivi de ce qui change.
+  - type: textarea
+    id: objectif
+    attributes:
+      label: Objectif
+      placeholder: Ce qui change et pourquoi.
+    validations:
+      required: true
+  - type: textarea
+    id: criteres
+    attributes:
+      label: Critères de fin
+      value: '- [ ] '
+    validations:
+      required: true
+  - type: textarea
+    id: hors-perimetre
+    attributes:
+      label: Hors périmètre

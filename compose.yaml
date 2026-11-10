@@ -1,0 +1,11 @@
+name: hackathon
+
+services:
+  # Poste de travail du dev container (VS Code s'y attache)
+  dev:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    command: sleep infinity
+    volumes:
+      - .:/workspace:cached

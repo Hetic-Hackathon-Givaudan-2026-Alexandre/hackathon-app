@@ -1,0 +1,32 @@
+[
+  {
+    "id": "dubai-chocolate",
+    "nom": "Dubai Chocolate",
+    "categorie": "food",
+    "description": "Chocolat fourré pistache et kadayif, popularisé par une vidéo TikTok.",
+    "pays": ["AE", "FR", "DE", "US", "GB"],
+    "sources": ["tiktok", "instagram", "google-trends", "presse"],
+    "mentions": [120, 340, 1100, 4200, 9800, 15400],
+    "simule": true
+  },
+  {
+    "id": "fleur-de-sureau",
+    "nom": "Fleur de sureau en parfumerie",
+    "categorie": "fragrance",
+    "description": "Note florale fraîche citée dans des avis et lancements de niche.",
+    "pays": ["FR", "GB"],
+    "sources": ["reddit", "brevets"],
+    "mentions": [80, 95, 110, 130, 150, 175],
+    "simule": true
+  },
+  {
+    "id": "boisson-ube",
+    "nom": "Boissons à l'ube",
+    "categorie": "food",
+    "description": "Igname violette des Philippines, en latte et en dessert.",
+    "pays": ["PH", "US"],
+    "sources": ["tiktok"],
+    "mentions": [50, 900, 3000, 1200, 400, 220],
+    "simule": true
+  }
+]

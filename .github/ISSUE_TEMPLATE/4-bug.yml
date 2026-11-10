@@ -1,0 +1,34 @@
+name: Bug
+description: Le résultat attendu est différent du résultat observé
+type: Bug
+body:
+  - type: markdown
+    attributes:
+      value: Le titre décrit ce qui ne va pas.
+  - type: textarea
+    id: etapes
+    attributes:
+      label: Étapes pour reproduire
+      value: '1. '
+    validations:
+      required: true
+  - type: input
+    id: attendu
+    attributes:
+      label: Attendu
+    validations:
+      required: true
+  - type: textarea
+    id: observe
+    attributes:
+      label: Observé
+      description: Ajoutez une capture d'écran si possible.
+    validations:
+      required: true
+  - type: input
+    id: ou
+    attributes:
+      label: Où ?
+      placeholder: Branche, commit, navigateur
+    validations:
+      required: true

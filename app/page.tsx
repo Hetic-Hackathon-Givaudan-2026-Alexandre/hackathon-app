@@ -1,4 +1,8 @@
+import BoutonAnalyse from '@/app/components/BoutonAnalyse';
 import { getTrends, scoreTrend } from '@/lib/trends';
+
+// Lu à chaque requête depuis PostgreSQL (pas au moment du build)
+export const dynamic = 'force-dynamic';
 
 const couleurs: Record<string, string> = {
   'tendance durable': 'bg-emerald-100 text-emerald-800',
@@ -6,8 +10,8 @@ const couleurs: Record<string, string> = {
   buzz: 'bg-rose-100 text-rose-800',
 };
 
-export default function Home() {
-  const items = getTrends()
+export default async function Home() {
+  const items = (await getTrends())
     .map((trend) => ({ trend, score: scoreTrend(trend) }))
     .sort((a, b) => b.score.total - a.score.total);
 
@@ -41,6 +45,7 @@ export default function Home() {
               {trend.categorie} · {trend.sources.length} sources ·{' '}
               {trend.pays.length} pays
             </p>
+            <BoutonAnalyse trendId={trend.id} />
           </li>
         ))}
       </ul>

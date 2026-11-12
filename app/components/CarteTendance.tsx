@@ -24,8 +24,8 @@ export default function CarteTendance({
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-lg font-medium">{trend.nom}</h3>
             {suivie && (
-              <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-texte">
-                Suivie
+              <span className="rounded-full bg-ambre/15 px-2 py-0.5 text-xs text-ambre ring-1 ring-ambre/30">
+                ★ Favori
               </span>
             )}
           </div>

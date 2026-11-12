@@ -7,7 +7,7 @@ export default async function Suivies() {
   const trends = await getTrends();
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <h1 className="text-4xl font-normal">Mes tendances</h1>
+      <h1 className="text-4xl font-normal">Favoris</h1>
       <p className="mt-2 text-brume">
         Les tendances que vous suivez, et leur évolution depuis hier.
       </p>

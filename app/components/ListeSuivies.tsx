@@ -11,7 +11,7 @@ export default function ListeSuivies({ trends }: { trends: Trend[] }) {
   if (!suivies.length) {
     return (
       <p className="verre p-6 text-brume">
-        Vous ne suivez encore aucune tendance.{' '}
+        Vous n&apos;avez encore aucun favori.{' '}
         <Link href="/" className="text-texte underline">
           Voir le fil du jour
         </Link>

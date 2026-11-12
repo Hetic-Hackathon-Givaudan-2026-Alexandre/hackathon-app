@@ -4,33 +4,44 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSuivies } from '@/lib/suivi';
 
-/** Les 3 entrées du header : fil du jour, mes tendances, recherche. */
+/** Entrées du header, comme sur la maquette : Explorer, Favoris, Recherche. */
 export default function Navigation() {
   const chemin = usePathname();
   const { ids } = useSuivies();
   const liens = [
-    { href: '/', libelle: 'Fil du jour', actif: chemin === '/' },
+    { href: '/', libelle: 'Explorer', actif: chemin === '/' },
     {
       href: '/suivies',
-      libelle: `Mes tendances${ids.length ? ` (${ids.length})` : ''}`,
+      libelle: 'Favoris',
+      compteur: ids.length,
       actif: chemin === '/suivies',
+    },
+    {
+      href: '/recherche',
+      libelle: 'Recherche',
+      actif: chemin.startsWith('/recherche'),
     },
   ];
   return (
     <nav
       aria-label="Navigation principale"
-      className="flex rounded-full border border-bord bg-white/[0.04] p-1"
+      className="flex rounded-full border border-bord bg-white/[0.04] p-1 backdrop-blur"
     >
       {liens.map((l) => (
         <Link
           key={l.href}
           href={l.href}
           aria-current={l.actif ? 'page' : undefined}
-          className={`rounded-full px-4 py-1.5 text-sm transition-colors ${
+          className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-colors sm:px-5 ${
             l.actif ? 'bg-white/15 text-texte' : 'text-brume hover:text-texte'
           }`}
         >
           {l.libelle}
+          {l.compteur ? (
+            <span className="rounded-full bg-lueur/20 px-1.5 text-xs text-lueur tabular-nums">
+              {l.compteur}
+            </span>
+          ) : null}
         </Link>
       ))}
     </nav>

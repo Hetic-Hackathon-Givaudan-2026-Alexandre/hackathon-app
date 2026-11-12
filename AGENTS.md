@@ -22,7 +22,7 @@ Toutes les commandes se lancent dans le dev container (`/workspace`).
 - IA : uniquement via `demanderJson` de `lib/ia.ts`, toujours avec un délai maximal et un repli calculé, et en vérifiant que les identifiants renvoyés existent (ADR 0006) ; côté serveur, via l'API compatible OpenAI configurée par `AI_BASE_URL`, `AI_MODEL`, `AI_API_KEY` (`.env.local`, modèle dans `.env.example`) : Ollama en dev, Claude en démo (ADR 0002). N'envoyer que des indicateurs agrégés.
 - Pages (document Product « Fonctionnalités du MVP », cas de démo : yuzu) : `/` fil du jour, `/recherche?q=` recherche client, `/tendance/[id]` fiche (onglets Décision et Signaux), `/suivies` mes tendances, `/tendance/[id]/piste` note à proposer. Composants serveur qui lisent la base via `lib/trends.ts` et `lib/catalogue.ts`.
 - Code utilisable dans le navigateur : importer depuis `lib/modele.ts` (jamais `lib/trends.ts`, qui charge le pilote PostgreSQL). Suivi des tendances : `lib/suivi.ts` (localStorage, pas de compte).
-- Graphiques Recharts et globe 3D (cobe) uniquement dans `app/components/` (composants `'use client'`).
+- Graphiques Recharts et globe 3D (Three.js, textures dans `public/textures/`, ADR 0007) uniquement dans `app/components/` (composants `'use client'`).
 - Styles : DA « Trend Intelligence » des maquettes (fond espace, panneaux `.verre`, vert `lueur`, orange `givaudan` pour l'action). Couleurs définies dans `@theme` de `app/globals.css` ; pas de nouveau fichier CSS.
 - Git : une branche `feature/…` depuis `develop` par ticket, PR vers `develop` avec `Closes #numéro` dans la description, fusion en « Squash and merge ».
 

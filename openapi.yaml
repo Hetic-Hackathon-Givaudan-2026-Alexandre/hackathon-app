@@ -1,19 +1,24 @@
 openapi: 3.1.0
 info:
-  title: API du Détecteur de tendances
-  version: 0.1.0
+  title: API du Détecteur de tendances (Trend Intelligence)
+  version: 0.2.0
   description: >
     Contrat de l'API du prototype (voir docs/adr/0004-contrat-api-openapi.md).
-    Les routes sont servies par Next.js depuis app/api/.
-# Prototype sans authentification (données publiques et agrégées)
+    Les routes sont servies par Next.js depuis app/api/. Toutes les données
+    sont simulées. Les réponses de l'IA sont vérifiées avant d'être renvoyées
+    (docs/adr/0006-ia-encadree.md).
+# Prototype sans authentification (données simulées et agrégées)
 security: []
 servers:
+  - url: http://localhost:8080
+    description: docker compose up
   - url: http://localhost:3000
+    description: npm run dev
 paths:
   /api/health:
     get:
       operationId: getHealth
-      summary: Vérifier que le service répond
+      summary: Vérifier que le service et la base répondent
       responses:
         '200':
           description: Service disponible
@@ -33,16 +38,16 @@ paths:
   /api/trends:
     get:
       operationId: listTrends
-      summary: Lister les tendances avec leur score
+      summary: Lister les tendances, triées par score
       responses:
         '200':
-          description: Tendances détectées
+          description: Tendances suivies
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TrendAvecScore'
+                  $ref: '#/components/schemas/TrendDetaillee'
   /api/trends/{id}:
     get:
       operationId: getTrend
@@ -51,33 +56,93 @@ paths:
         - $ref: '#/components/parameters/TrendId'
       responses:
         '200':
-          description: La tendance et son score
+          description: La tendance, son état et sa variation depuis la veille
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TrendAvecScore'
+                $ref: '#/components/schemas/TrendDetaillee'
         '404':
           $ref: '#/components/responses/Introuvable'
   /api/trends/{id}/analyse:
     post:
       operationId: analyseTrend
-      summary: Explication IA « suivre / attendre » (voir ADR 0002)
+      summary: Phrase qui explique le score (F4)
       description: >
-        Envoie uniquement des indicateurs agrégés au fournisseur d'IA,
-        puis enregistre la réponse dans la table analyses.
+        L'IA reçoit uniquement le score et ses 3 critères ; elle ne change
+        jamais le score. Si elle ne répond pas, une phrase est calculée à
+        partir des critères (modele = « texte calculé »). La réponse est
+        enregistrée dans la table analyses.
       parameters:
         - $ref: '#/components/parameters/TrendId'
       responses:
         '200':
-          description: Explication générée
+          description: Explication du score
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Analyse'
         '404':
           $ref: '#/components/responses/Introuvable'
-        '503':
-          description: Fournisseur d'IA indisponible
+  /api/trends/{id}/produit:
+    get:
+      operationId: getProduit
+      summary: Ce que Givaudan peut proposer (F5, F6)
+      description: >
+        Arôme du catalogue correspondant (ou « à créer »), délai de mise sur
+        le marché, 3 alternatives classées par similarité de notes et une
+        piste produit par métier. Seuls des arômes du catalogue sont renvoyés.
+      parameters:
+        - $ref: '#/components/parameters/TrendId'
+      responses:
+        '200':
+          description: Proposition de produit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proposition'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+  /api/recherche:
+    get:
+      operationId: rechercher
+      summary: Recherche en langage courant pour un client (F2)
+      description: >
+        L'IA classe les tendances et justifie chaque résultat (délai maximal
+        4 s). Ses identifiants sont vérifiés ; sinon le classement par
+        mots-clés est renvoyé (source = mots-cles).
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            example: boisson aux agrumes pour l'Asie
+      responses:
+        '200':
+          description: 0 à 5 tendances, de la plus pertinente à la moins pertinente
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [source, resultats]
+                properties:
+                  source:
+                    type: string
+                    enum: [ia, mots-cles]
+                  resultats:
+                    type: array
+                    maxItems: 5
+                    items:
+                      type: object
+                      required: [id, raison]
+                      properties:
+                        id:
+                          type: string
+                          example: yuzu
+                        raison:
+                          type: string
+        '400':
+          description: Paramètre q manquant
 components:
   parameters:
     TrendId:
@@ -86,7 +151,7 @@ components:
       required: true
       schema:
         type: string
-        example: dubai-chocolate
+        example: yuzu
   responses:
     Introuvable:
       description: Tendance introuvable
@@ -98,63 +163,166 @@ components:
               error:
                 type: string
   schemas:
+    Metier:
+      type: string
+      enum: [taste, fragrance, beauty]
     Trend:
       type: object
       required:
-        [id, nom, categorie, description, pays, sources, mentions, simule]
+        - id
+        - nom
+        - metier
+        - categories
+        - description
+        - pays
+        - emoji
+        - notes
+        - score
+        - score_veille
+        - evolution
+        - recurrence
+        - diffusion
+        - courbe
+        - arome_ref
+        - simule
       properties:
         id:
           type: string
         nom:
           type: string
-        categorie:
-          type: string
-          enum: [food, fragrance, beauty]
+        metier:
+          $ref: '#/components/schemas/Metier'
+        categories:
+          type: array
+          items:
+            type: string
         description:
           type: string
         pays:
           type: array
-          description: Codes pays ISO 3166-1 alpha-2
+          description: Codes ISO 3166-1 alpha-2, le premier est le pays d'origine
           items:
             type: string
-        sources:
+        emoji:
+          type: string
+        notes:
           type: array
+          description: Notes gustatives ou olfactives
           items:
             type: string
-            example: tiktok
-        mentions:
-          type: array
-          description: Volume de mentions par période, de la plus ancienne à la plus récente
-          items:
-            type: integer
-        simule:
-          type: boolean
-          description: true si la donnée est simulée
-    Score:
-      type: object
-      required: [total, croissance, convergence, diffusion, verdict]
-      properties:
-        total:
+        score:
           type: integer
           minimum: 0
           maximum: 100
-        croissance:
+        score_veille:
+          type: [integer, 'null']
+          description: null pour une nouvelle tendance
+        evolution:
           type: integer
-        convergence:
+          description: La courbe monte-t-elle sur 12 mois (0-100)
+        recurrence:
           type: integer
+          description: Revient-elle chaque année (0-100)
         diffusion:
           type: integer
-        verdict:
-          type: string
-          enum: [tendance durable, à surveiller, buzz]
-    TrendAvecScore:
+          description: Nombre de pays où elle monte (0-100)
+        courbe:
+          type: array
+          description: Intérêt mensuel 0-100, 60 mois (déc. 2021 à nov. 2026)
+          items:
+            type: integer
+        arome_ref:
+          type: [string, 'null']
+        simule:
+          type: boolean
+    TrendDetaillee:
       allOf:
         - $ref: '#/components/schemas/Trend'
         - type: object
-          required: [score]
+          required: [etat, variation]
           properties:
-            score:
-              $ref: '#/components/schemas/Score'
+            etat:
+              type: string
+              enum: [durable, surveiller, buzz]
+              description: ≥ 70 durable, 40 à 69 à surveiller, < 40 buzz
+            variation:
+              type: [integer, 'null']
+              description: Points gagnés ou perdus depuis la veille
+    Arome:
+      type: object
+      required:
+        [
+          ref,
+          nom,
+          metier,
+          notes,
+          description,
+          disponibilite,
+          cout,
+          recolte,
+          risque,
+        ]
+      properties:
+        ref:
+          type: string
+          example: GIV-T-1042
+        nom:
+          type: string
+        metier:
+          $ref: '#/components/schemas/Metier'
+        notes:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        disponibilite:
+          type: string
+          enum: [disponible, tendue, rare]
+        cout:
+          type: string
+          enum: [stable, hausse, baisse]
+        recolte:
+          type: string
+        risque:
+          type: string
+    Proposition:
+      type: object
+      required: [auCatalogue, delaiMois, alternatives, pistes]
+      properties:
+        auCatalogue:
+          oneOf:
+            - $ref: '#/components/schemas/Arome'
+            - type: 'null'
+        delaiMois:
+          type: integer
+          description: 1 si l'arôme existe au catalogue, 6 sinon
+        alternatives:
+          type: array
+          maxItems: 3
+          items:
+            type: object
+            required: [arome, proximite, notesCommunes]
+            properties:
+              arome:
+                $ref: '#/components/schemas/Arome'
+              proximite:
+                type: integer
+                description: Proximité en %
+              notesCommunes:
+                type: array
+                items:
+                  type: string
+        pistes:
+          type: array
+          items:
+            type: object
+            required: [metier, idee]
+            properties:
+              metier:
+                $ref: '#/components/schemas/Metier'
+              idee:
+                type: string
     Analyse:
       type: object
       required: [recommandation, explication, modele]

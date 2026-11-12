@@ -1,20 +1,23 @@
 name: hackathon
 
 services:
-  # Poste de travail du dev container (VS Code s'y attache)
-  dev:
-    build:
-      context: .
-      dockerfile: .devcontainer/Dockerfile
-    command: sleep infinity
-    volumes:
-      - .:/workspace:cached
-    # Permet de joindre Ollama lancé sur la machine hôte (aussi sous Linux)
+  # Le site complet (front + API), lancé par `docker compose up` (jalon m2)
+  web:
+    build: .
+    ports:
+      - '8080:3000'
+    environment:
+      DATABASE_URL: postgres://app:app@db:5432/app
+      # Ollama sur la machine par défaut ; surchargeable par un fichier .env
+      AI_BASE_URL: ${AI_BASE_URL:-http://host.docker.internal:11434/v1}
+      AI_MODEL: ${AI_MODEL:-llama3.2:1b}
+      AI_API_KEY: ${AI_API_KEY:-ollama}
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     depends_on:
       db:
         condition: service_healthy
+    restart: unless-stopped
 
   db:
     image: postgres:17
@@ -32,3 +35,18 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  # Poste de travail du dev container (VS Code s'y attache)
+  dev:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    command: sleep infinity
+    volumes:
+      - .:/workspace:cached
+    # Permet de joindre Ollama lancé sur la machine hôte (aussi sous Linux)
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    depends_on:
+      db:
+        condition: service_healthy

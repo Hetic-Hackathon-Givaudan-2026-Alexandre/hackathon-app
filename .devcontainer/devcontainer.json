@@ -2,6 +2,7 @@
   "name": "hackathon-app",
   "dockerComposeFile": "../compose.yaml",
   "service": "dev",
+  "runServices": ["dev", "db"],
   "workspaceFolder": "/workspace",
   "remoteUser": "node",
   "features": {

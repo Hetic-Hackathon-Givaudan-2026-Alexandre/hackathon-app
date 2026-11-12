@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.github
+.husky
+.devcontainer
+db/data
+.env
+.env*.local
+.scratch
+docs
+*.md

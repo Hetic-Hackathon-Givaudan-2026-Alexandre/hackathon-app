@@ -1,4 +1,4 @@
-import { getTrend, scoreTrend } from '@/lib/trends';
+import { etat, getTrend, variation } from '@/lib/trends';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,5 +11,9 @@ export async function GET(
   if (!trend) {
     return Response.json({ error: 'Tendance introuvable' }, { status: 404 });
   }
-  return Response.json({ ...trend, score: scoreTrend(trend) });
+  return Response.json({
+    ...trend,
+    etat: etat(trend.score),
+    variation: variation(trend),
+  });
 }

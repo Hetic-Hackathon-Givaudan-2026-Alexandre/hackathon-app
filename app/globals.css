@@ -1,10 +1,90 @@
 @import 'tailwindcss';
 
-:root {
-  color-scheme: light;
+/*
+ * DA « Trend Intelligence » (maquettes de l'équipe) : espace profond,
+ * panneaux en verre, vert lumineux pour ce qui monte, orange Givaudan pour l'action.
+ */
+@theme {
+  --font-sans: 'Jost Variable', ui-sans-serif, system-ui, sans-serif;
+  --color-espace: #04070c;
+  --color-nuit: #0b121b;
+  --color-verre: rgb(255 255 255 / 0.05);
+  --color-verre-fort: rgb(255 255 255 / 0.09);
+  --color-bord: rgb(255 255 255 / 0.1);
+  --color-texte: #eef3ef;
+  --color-brume: #98a6a1;
+  --color-lueur: #8fe34f;
+  --color-lueur-sombre: #2f5e1a;
+  --color-givaudan: #d4621c;
+  --color-ambre: #f0a43a;
+  --color-alerte: #ff6f61;
 }
 
 body {
-  background: #fafaf7;
-  color: #1c1917;
+  background-color: var(--color-espace);
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgb(255 255 255 / 0.5), transparent),
+    radial-gradient(1px 1px at 72% 12%, rgb(255 255 255 / 0.35), transparent),
+    radial-gradient(1px 1px at 38% 64%, rgb(255 255 255 / 0.3), transparent),
+    radial-gradient(1px 1px at 88% 78%, rgb(255 255 255 / 0.4), transparent),
+    radial-gradient(1px 1px at 55% 40%, rgb(255 255 255 / 0.25), transparent),
+    radial-gradient(
+      1.5px 1.5px at 22% 86%,
+      rgb(255 255 255 / 0.35),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 80% 60% at 75% 0%,
+      rgb(40 90 160 / 0.18),
+      transparent 70%
+    );
+  background-attachment: fixed;
+  color: var(--color-texte);
+  font-family: var(--font-sans);
+}
+
+/* Panneau en verre des maquettes */
+.verre {
+  background: var(--color-verre);
+  border: 1px solid var(--color-bord);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-lueur);
+  outline-offset: 3px;
+}
+
+/* Une seule apparition orchestrée : le globe sort de l'ombre */
+@media (prefers-reduced-motion: no-preference) {
+  .apparition {
+    animation: apparition 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+}
+
+@keyframes apparition {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+/* Étiquettes accrochées aux points du globe (CSS anchor positioning) */
+.etiquette-globe {
+  position: absolute;
+  bottom: anchor(top);
+  left: anchor(center);
+  translate: -50% -10px;
+  transition:
+    opacity 0.4s,
+    filter 0.4s;
+  pointer-events: none;
+}
+
+@supports not (position-anchor: --a) {
+  .etiquette-globe {
+    display: none;
+  }
 }

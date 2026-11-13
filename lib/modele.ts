@@ -38,9 +38,12 @@ export const ETATS: Record<Etat, string> = {
   buzz: 'Buzz',
 };
 
-/** Seuils du document Product (à valider avec Data) : ≥ 70 durable, 40-69 à surveiller, < 40 buzz */
+/**
+ * Seuils de l'équipe Data (validate_score.py, 79 % de bons classements sur
+ * 28 cas) : ≥ 35 durable. Zone « à surveiller » 25-34 : choix Tech à confirmer.
+ */
 export function etat(score: number): Etat {
-  return score >= 70 ? 'durable' : score >= 40 ? 'surveiller' : 'buzz';
+  return score >= 35 ? 'durable' : score >= 25 ? 'surveiller' : 'buzz';
 }
 
 /** Variation depuis la veille ; null pour une nouvelle tendance. */

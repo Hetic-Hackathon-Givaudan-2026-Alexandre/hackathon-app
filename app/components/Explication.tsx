@@ -9,14 +9,22 @@ interface Analyse {
 }
 
 /**
- * Phrase qui explique le score, demandée à l'IA à l'ouverture de la fiche
- * (POST /api/trends/{id}/analyse). L'IA ne change jamais le score.
+ * Phrase qui explique le score. On affiche la dernière explication enregistrée
+ * en base ; sinon on la demande à l'IA (POST /api/trends/{id}/analyse).
+ * L'IA ne change jamais le score.
  */
-export default function Explication({ trendId }: { trendId: string }) {
-  const [analyse, setAnalyse] = useState<Analyse | null>(null);
+export default function Explication({
+  trendId,
+  initiale = null,
+}: {
+  trendId: string;
+  initiale?: Analyse | null;
+}) {
+  const [analyse, setAnalyse] = useState<Analyse | null>(initiale);
   const [erreur, setErreur] = useState(false);
 
   useEffect(() => {
+    if (initiale) return;
     let annule = false;
     fetch(`/api/trends/${trendId}/analyse`, { method: 'POST' })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
@@ -25,7 +33,7 @@ export default function Explication({ trendId }: { trendId: string }) {
     return () => {
       annule = true;
     };
-  }, [trendId]);
+  }, [trendId, initiale]);
 
   if (erreur) {
     return (
@@ -49,7 +57,7 @@ export default function Explication({ trendId }: { trendId: string }) {
       <p className="text-texte/90">{analyse.explication}</p>
       <p className="mt-1 text-xs text-brume">
         {parIa
-          ? `✦ Rédigé par l'IA (${analyse.modele}) à partir des 3 critères`
+          ? `✦ Rédigé par l'IA (${analyse.modele}) à partir des chiffres`
           : 'Texte calculé à partir des 3 critères (IA indisponible)'}
         , recommandation : <strong>{analyse.recommandation}</strong>
       </p>

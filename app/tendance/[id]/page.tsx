@@ -15,6 +15,7 @@ import { type Arome, proposition } from '@/lib/catalogue';
 import { nomPays } from '@/lib/pays';
 import {
   etat,
+  getDerniereAnalyse,
   getTrend,
   METIERS,
   moisCourbe,
@@ -67,6 +68,7 @@ export default async function FicheTendance({
   if (!trend) notFound();
 
   const p = await proposition(trend);
+  const derniereAnalyse = await getDerniereAnalyse(trend.id);
   const e = etat(trend.score);
   const etape = etapeCycle(trend);
   const liens = sources(trend);
@@ -126,7 +128,7 @@ export default async function FicheTendance({
           </dl>
         </div>
         <div className="mt-6 border-t border-bord pt-4">
-          <Explication trendId={trend.id} />
+          <Explication trendId={trend.id} initiale={derniereAnalyse} />
           <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
             {liens.slice(0, 2).map((s) => (
               <a

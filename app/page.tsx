@@ -1,7 +1,7 @@
 import BarreRecherche from '@/app/components/BarreRecherche';
 import FilDuJour from '@/app/components/FilDuJour';
 import Globe, { type PointGlobe } from '@/app/components/Globe';
-import { etat, getTrends, resumeDuJour, variation } from '@/lib/trends';
+import { etat, getTrends, resumeDuJour } from '@/lib/trends';
 
 // Lu à chaque requête depuis PostgreSQL (pas au moment du build)
 export const dynamic = 'force-dynamic';
@@ -94,7 +94,7 @@ export default async function Accueil() {
                     {
                       pays: 'JP',
                       titre: 'Yuzu',
-                      sousTitre: `+${variation(yuzu)} aujourd'hui`,
+                      sousTitre: `${yuzu.score}/100`,
                     },
                   ]
                 : []
